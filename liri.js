@@ -22,7 +22,7 @@ function switchUp() {
       movieInfo(enterRequest);
       break;
     case 'do-what-it-says':
-      getRandom();
+      doWhat();
       break;
     default:
       console.log("Sorry! Try one of these commands: 'concert-this', 'spotify-this-song', 'movie-this', 'do-what-it-says'");
@@ -30,37 +30,37 @@ function switchUp() {
 };
 // **bandsInTown**
 function bandsInfo(enterRequest) {
-var searchBand = enterRequest;
-if (!searchBand) {
-  searchBand = "Korn";
-} else {
-  searchBand = searchBand;
-}
-axios.get("https://rest.bandsintown.com/artists/" + searchBand + "/events?app_id=codingbootcamp").then(
-  function (response) {
-    var response = (response.data)
-    if (response.length > 0) {
-      for (i = 0; i < 1; i++) {
-        var concertDate = moment(response[i].datetime).format("MM/DD/YYYY hh:mm A");
+  var searchBand = enterRequest;
+  if (!searchBand) {
+    searchBand = "Korn";
+  } else {
+    searchBand = searchBand;
+  }
+  axios.get("https://rest.bandsintown.com/artists/" + searchBand + "/events?app_id=codingbootcamp").then(
+    function (response) {
+      var response = (response.data)
+      if (response.length > 0) {
+        for (i = 0; i < 1; i++) {
+          var concertDate = moment(response[i].datetime).format("MM/DD/YYYY hh:mm A");
           console.log(`
           Artist: ${response[i].lineup[0]}
           Venue: ${response[i].venue.name}
           Venue Location: ${response[i].venue.latitude}, ${response[i].venue.longitude}
           Venue City: ${response[i].venue.city}, ${response[i].venue.country}
           Concert Date: ${concertDate}`)
+        };
+      } else {
+        console.log('Band or concert not found!');
       };
-  } else {
-      console.log('Band or concert not found!');
-  };
-})
+    })
 }
 // **spotify**
-function spotSong(enterSong) {
+function spotSong(enterRequest) {
   var searchTrack;
-  if (!searchTrack) {
+  if (!enterRequest) {
     searchTrack = "The Sign ace of base";
   } else {
-    searchTrack = enterSong;
+    searchTrack = enterRequest;
   }
 
   spotify.search({
@@ -83,7 +83,7 @@ function spotSong(enterSong) {
 // **OMDB**
 function movieInfo(enterRequest) {
   var searchMovie;
-  if (!searchMovie) {
+  if (!enterRequest) {
     searchMovie = "Sharknado";
   } else {
     searchMovie = enterRequest;
@@ -100,5 +100,25 @@ function movieInfo(enterRequest) {
       Actors listed: ${response.data.Actors}
       ${divider}`)
     })
+}
+
+function doWhat() {
+  fs.readFile("random.txt", "utf8", function (error, data) {
+    if (error) {
+      console.log(error);
+    } else {
+      data = data.split(',');
+      command = data[0];
+      if (command === 'spotify-this-song') {
+        spotSong(data[1]);
+      } else if (command === 'movie-this') {
+        movieInfo(data[1]);
+      } else if (command === 'concert-this') {
+        bandsInfo();
+      } else {
+        console.log('Error: Unrecognized command.');
+      }
+    }
+  });
 }
 switchUp();
