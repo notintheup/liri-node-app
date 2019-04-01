@@ -1,88 +1,95 @@
 require("dotenv").config();
 var fs = require("fs");
 var keys = require("./keys.js");
-var request = require('request');
 var Spotify = require('node-spotify-api');
+var spotify = new Spotify(keys.spotify);
 var axios = require("axios");
-var fs = require('fs');
-// var inquirer = require("inquirer");
-
 
 var search = process.argv[2];
 var enterRequest = process.argv.slice(3).join(" ");
 var divider = "\n------------------------------------------------------------\n\n";
 
-
-function switchCase() {
+function switchUp() {
 
   switch (search) {
-
     case 'concert-this':
-      bandsInTown(enterRequest);
+      bandsInfo(enterRequest);
       break;
-
     case 'spotify-this-song':
-      songInfo(enterRequest);
+      spotSong(enterRequest);
       break;
-
     case 'movie-this':
       movieInfo(enterRequest);
       break;
-
     case 'do-what-it-says':
       getRandom();
       break;
+    default:
+      console.log("Sorry! Try one of these commands: 'concert-this', 'spotify-this-song', 'movie-this', 'do-what-it-says'");
   }
 };
-
-
-
-//**SPOTIFY**
-function songInfo(enterRequest) {
-  var spotify = new Spotify(keys.spotify);
-
-  var searchSong;
-  if (enterRequest === undefined) {
-    searchSong = "Hips don't lie";
-  } else {
-    searchSong = enterRequest;
-  };
-  spotify.search(searchSong).then(
-    function (response) {
-      console.log(` ${divider}
-      ${response}
-      ${divider}`)
-      
-    })
+// **bandsInTown**
+function bandsInfo(enterRequest) {
+var searchBand;
+if (enterRequest !== searchBand) {
+  searchBand = "Korn";
+} else {
+  searchBand = enterRequest;
 }
+axios.get("https://rest.bandsintown.com/artists/" + searchBand + "/events?app_id=codingbootcamp").then(
+  function (response) {
+    console.log(response);
+    // var response = (response)
+    if (response.length > 0) {
+      for (i = 0; i < 1; i++) {
+          console.log(`Artist: ${response[i].lineup[0]}
+          Venue: ${response[i].venue.name}
+          Venue Location: ${response[i].venue.latitude}, ${response[i].venue.longitude}
+          Venue City: ${response[i].venue.city}, ${response[i].venue.country}`)
 
-//   spotify.search({
-//     type: 'track',
-//     query: searchTrack
-//   }, function (error, data) {
-//     if (error) {
-//       console.log('Error: ' + error);
-//       return;
-//     } else {
-//       console.log(divider);
-//       console.log("Artist: " + data.tracks.items[0].artists[0].name);
-//       console.log("Song: " + data.tracks.items[0].name);
-//       console.log("Preview: " + data.tracks.items[3].preview_url);
-//       console.log("Album: " + data.tracks.items[0].album.name);
-//       console.log(divider);
+          // var concertDate = moment(response[i].datetime).format("MM/DD/YYYY hh:00 A");
+          // console.log(`Date and Time: ${concertDate}\n\n- - - - -`);
+      };
+  } else {
+      console.log('Band or concert not found!');
+  };
+}
+)
+}
+// **spotify**
+function spotSong(enterSong) {
+  var searchTrack;
+  if (enterSong !== searchTrack) {
+    searchTrack = "The Sign ace of base";
+  } else {
+    searchTrack = enterSong;
+  }
 
-//     }
-//   });
-// };
-
+  spotify.search({
+    type: 'track',
+    query: searchTrack
+  }, function (error, data) {
+    if (error) {
+      console.log('Error occurred: ' + error);
+      return;
+    } else {
+      console.log(` ${divider}
+      ${data.tracks.items[0].artists[0].name}
+      ${data.tracks.items[0].name}
+      ${data.tracks.items[0].preview_url}
+      ${data.tracks.items[0].album.name}
+      ${divider}`)
+    }
+  });
+};
 // **OMDB**
 function movieInfo(enterRequest) {
   var searchMovie;
-  if (enterRequest === undefined) {
+  if (enterRequest !== searchMovie) {
     searchMovie = "Sharknado";
   } else {
     searchMovie = enterRequest;
-  };
+  }
   axios.get("http://www.omdbapi.com/?t=" + searchMovie + "&y=&plot=short&apikey=trilogy").then(
     function (response) {
       console.log(` ${divider}
@@ -96,50 +103,4 @@ function movieInfo(enterRequest) {
       ${divider}`)
     })
 }
-
-switchCase();
-
-
-
-
-
-// function bandsInTown(enterRequest) {
-
-//   if (action === 'concert-this') {
-//     var artist = "";
-//     for (var i = 3; i < process.argv.length; i++) {
-//       artist += process.argv[i];
-//     }
-//     console.log(artist);
-//   } else {
-//     artist = enterRequest;
-//   }
-
-//   var queryUrl = "https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp";
-
-//   request(queryUrl, function (error, response, body) {
-
-//     if (!error && response.statusCode === 200) {
-
-//       var jsonData = JSON.parse(body);
-//       for (i = 0; i < jsonData.length; i++) {
-//         var dataTime = jsonData[i].datetime;
-//         var month = dataTime.substring(5, 7);
-//         var year = dataTime.substring(0, 4);
-//         var day = dataTime.substring(8, 10);
-//         var dateForm = month + "/" + day + "/" + year
-
-//         console.log(divider);
-
-//         console.log("Date: " + dateForm);
-//         console.log("Name: " + jsonData[i].venue.name);
-//         console.log("City: " + jsonData[i].venue.city);
-//         if (jsonData[i].venue.region !== "") {
-//           console.log("Country: " + jsonData[i].venue.region);
-//         }
-//         console.log("Country: " + jsonData[i].venue.country);
-//         console.log(divider);
-//       }
-//     }
-//   });
-// }
+switchUp();
