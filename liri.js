@@ -4,7 +4,7 @@ var keys = require("./keys.js");
 var Spotify = require('node-spotify-api');
 var spotify = new Spotify(keys.spotify);
 var axios = require("axios");
-
+var moment = require('moment');
 var search = process.argv[2];
 var enterRequest = process.argv.slice(3).join(" ");
 var divider = "\n------------------------------------------------------------\n\n";
@@ -30,36 +30,34 @@ function switchUp() {
 };
 // **bandsInTown**
 function bandsInfo(enterRequest) {
-var searchBand;
-if (enterRequest !== searchBand) {
+var searchBand = enterRequest;
+if (!searchBand) {
   searchBand = "Korn";
 } else {
-  searchBand = enterRequest;
+  searchBand = searchBand;
 }
 axios.get("https://rest.bandsintown.com/artists/" + searchBand + "/events?app_id=codingbootcamp").then(
   function (response) {
-    console.log(response);
-    // var response = (response)
+    var response = (response.data)
     if (response.length > 0) {
       for (i = 0; i < 1; i++) {
-          console.log(`Artist: ${response[i].lineup[0]}
+        var concertDate = moment(response[i].datetime).format("MM/DD/YYYY hh:mm A");
+          console.log(`
+          Artist: ${response[i].lineup[0]}
           Venue: ${response[i].venue.name}
           Venue Location: ${response[i].venue.latitude}, ${response[i].venue.longitude}
-          Venue City: ${response[i].venue.city}, ${response[i].venue.country}`)
-
-          // var concertDate = moment(response[i].datetime).format("MM/DD/YYYY hh:00 A");
-          // console.log(`Date and Time: ${concertDate}\n\n- - - - -`);
+          Venue City: ${response[i].venue.city}, ${response[i].venue.country}
+          Concert Date: ${concertDate}`)
       };
   } else {
       console.log('Band or concert not found!');
   };
-}
-)
+})
 }
 // **spotify**
 function spotSong(enterSong) {
   var searchTrack;
-  if (enterSong !== searchTrack) {
+  if (!searchTrack) {
     searchTrack = "The Sign ace of base";
   } else {
     searchTrack = enterSong;
@@ -85,7 +83,7 @@ function spotSong(enterSong) {
 // **OMDB**
 function movieInfo(enterRequest) {
   var searchMovie;
-  if (enterRequest !== searchMovie) {
+  if (!searchMovie) {
     searchMovie = "Sharknado";
   } else {
     searchMovie = enterRequest;
