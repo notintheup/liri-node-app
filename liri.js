@@ -116,7 +116,7 @@ function doWhat() {
       } else if (command === 'concert-this') {
         bandsInfo();
       } else {
-        console.log('Error: Unrecognized command.');
+        console.log('Error: Dead.');
       }
     }
   });
